@@ -1,2 +1,2 @@
-# shopTracker
+# shopTrackr
 Just a custom scraper !
