@@ -5,13 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from amazoncaptcha import AmazonCaptcha
 
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_experimental_option("detach", True)
-
-driver = webdriver.Chrome(chrome_options)
-driver.get("https://a.co/d/hIvOBqn")
-
-def solve_captcha():
+def solve_captcha(driver):
     try:
         captcha_img = driver.find_element(By.TAG_NAME, "img").get_attribute("src")
         captcha = AmazonCaptcha.fromlink(captcha_img)
@@ -23,8 +17,11 @@ def solve_captcha():
         print(f"Error solving CAPTCHA : {e}")
 
 def get_product(URL):
-    driver.get("https://amzn.in/d/aMCGZ0I")
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_experimental_option("detach", True)
+    driver = webdriver.Chrome(chrome_options)
     try:
+        driver.get(URL)
         search_product = WebDriverWait(driver, 5).until(
             EC.element_to_be_clickable((By.ID, "centerCol"))
         )
@@ -34,12 +31,11 @@ def get_product(URL):
 
     except Exception as e:
         if "captcha" in driver.page_source:
-            solve_captcha()
-            get_product(URL)
+            solve_captcha(driver)
+            return get_product(URL)
         else:
-            print(e)
-
-print(get_product("https://amzn.in/d/eALdvqX"))
-driver.quit()
+            raise e
+    finally:
+        driver.quit()
 
 
